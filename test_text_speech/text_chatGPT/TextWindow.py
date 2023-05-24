@@ -6,6 +6,7 @@ from Text_UI import Ui_Form
 import pyttsx3
 import openai
 openai.api_key='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'
+#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
 class Window(QWidget):
     def __init__(self):
         super().__init__()
