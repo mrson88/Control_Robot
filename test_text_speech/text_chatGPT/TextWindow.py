@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QApplication, QWidget
 from Text_UI import Ui_Form
 import pyttsx3
 import openai
-openai.api_key='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'
+openai.api_key='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'
 #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
 class Window(QWidget):
     def __init__(self):
