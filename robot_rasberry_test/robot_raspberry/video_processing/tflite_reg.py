@@ -265,7 +265,7 @@ def start(frame1):
                 ymax = int(min(imH, (boxes[i][2] * imH)))
                 xmax = int(min(imW, (boxes[i][3] * imW)))
                 xcentre = (xmin + xmax) / 2
-                cv2.rectangle(frame, (xmin, ymin), (xmax, ymax), (10, 255, 0), 2)
+                cv2.rectangle(frame, (xmin, ymin), (xmax, ymax), (10, 255, 0), 1)
 
                 # Draw label
                 object_name = labels[int(classes[i])]

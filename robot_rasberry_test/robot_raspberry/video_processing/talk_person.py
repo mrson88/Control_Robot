@@ -2,7 +2,7 @@ import sys
 import speech_recognition as sr
 import pyttsx3
 import openai
-openai.api_key='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'
+openai.api_key='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'
 count_check_listen=0
 class TalkPerson():
     def __init__(self):

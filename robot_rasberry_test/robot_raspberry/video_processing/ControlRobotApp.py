@@ -4,29 +4,29 @@ import imutils
 from PyQt5.QtGui import QImage
 from PyQt5.QtWidgets import QMainWindow, QApplication
 import sys
-from control_robot_ui import Ui_MainWindow
+from control_robot_ui_test import Ui_MainWindow
 import argparse
 from PyQt5 import  QtGui, QtWidgets
 import cv2
-from handtracker import detect_hand
+#from handtracker import detect_hand
 from tflite_reg import start
 from talk_person import TalkPerson
 from mobilenetssd import do_detect
 import numpy as np
 import continuous_threading
 from decide_control import Decide_Control
-from stream_video import *
+from Facerec_QT.face_rec import FaceRecognition,read_db,write_db
 class_id=0
 confidence=0
 distance=0
 xcentre=0
-
+"""
 try:
     faceCascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 except Exception as e:
     print('Warning...', e)
 
-
+"""
 
 
 class ControlRobotWindow(QMainWindow, Ui_MainWindow,TalkPerson,Decide_Control):
@@ -46,6 +46,13 @@ class ControlRobotWindow(QMainWindow, Ui_MainWindow,TalkPerson,Decide_Control):
         self.started = False
         self.show()
         self.finish=True
+        self.recognition_on=True
+        self.registration_data = None
+        self.frame_height = 480
+        self.frame_width = 640
+        self.face_recognition = FaceRecognition(0.7, self.frame_height, self.frame_width)
+        self.pushButton_register.clicked.connect(self.register_button_func)
+        self.pushButton_quit.clicked.connect(self.close)
 
 
     def loadImage(self):
@@ -74,7 +81,7 @@ class ControlRobotWindow(QMainWindow, Ui_MainWindow,TalkPerson,Decide_Control):
         while (vid.isOpened()):
             QtWidgets.QApplication.processEvents()
             _, self.image = vid.read()
-            self.image = imutils.resize(self.image, height=640)
+            #self.image = imutils.resize(self.image, height=640, width=480)
 
             
             try:
@@ -107,7 +114,7 @@ class ControlRobotWindow(QMainWindow, Ui_MainWindow,TalkPerson,Decide_Control):
             to set at the label.
         """
         self.tmp = image
-        image = imutils.resize(image, width=480)
+        #image = imutils.resize(image, width=480)
         
         frame = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         
@@ -133,12 +140,14 @@ class ControlRobotWindow(QMainWindow, Ui_MainWindow,TalkPerson,Decide_Control):
                           font_scale=0.5, background_RGB=(228, 20, 222), text_RGB=(255, 255, 255))
 
         if self.checkBox_2.checkState()==0:
-            frame_detect_raw1,class_id,confidence,xcentre=start(img)
+            frame_detect,class_id,confidence,xcentre=start(img)
             #post_video_stream(img)
             
 
-            frame_detect=detect_hand(frame_detect_raw1)
+            #frame_detect=detect_hand(frame_detect)
             gray = cv2.cvtColor(frame_detect, cv2.COLOR_BGR2GRAY)
+            processed_frame, ids = self.face_recognition.process_frame(frame_detect, self.recognition_on, self.registration_data)
+            """
             faces = faceCascade.detectMultiScale(
                 gray,
                 scaleFactor=1.15,
@@ -153,19 +162,20 @@ class ControlRobotWindow(QMainWindow, Ui_MainWindow,TalkPerson,Decide_Control):
                 self.finish=False
                 self.talk_robot_AI()
                 self.finish=True
+                """
                 
             self.setPhoto(frame_detect)
             second=time.strftime('%S')
             
             #if int(second)%2==0:
-            self.dokc()
+            #self.dokc()
 
             #thead_dicide=continuous_threading.PeriodicThread(20,self.dicide)
             #thead_dicide.start()
             #thead_dicide.stop()
         else:
-            frame_detect_raw ,class_id,confidence,xcentre= do_detect(img)
-            frame_detect=detect_hand(frame_detect_raw)
+            frame_detect ,class_id,confidence,xcentre= do_detect(img)
+            #frame_detect=detect_hand(frame_detect_raw)
             self.setPhoto(frame_detect)
 
     def savePhoto(self):
@@ -179,6 +189,13 @@ class ControlRobotWindow(QMainWindow, Ui_MainWindow,TalkPerson,Decide_Control):
         thead_talk=continuous_threading.ContinuousThread(target=self.listen)
         thead_talk.start()
         thead_talk.stop()
+    
+    def register_button_func(self):
+        data=read_db()
+        print(len(data))
+        print(data)
+        self.registration_data = [len(data), self.name.text()]
+
         
 
 
