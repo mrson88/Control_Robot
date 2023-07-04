@@ -21,7 +21,7 @@ class_id=0
 confidence=0
 distance=0
 xcentre=0
-"""1
+"""12
 try:
     faceCascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 except Exception as e:
