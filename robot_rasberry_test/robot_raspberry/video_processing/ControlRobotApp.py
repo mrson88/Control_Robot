@@ -12,6 +12,7 @@ import cv2
 from tflite_reg import start
 from talk_person import TalkPerson
 from mobilenetssd import do_detect
+
 import numpy as np
 import continuous_threading
 from decide_control import Decide_Control
